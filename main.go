@@ -11,15 +11,16 @@ import (
 )
 
 func main() {
-	var currentDirectory, err = os.Getwd()
+	var directoryToWalk = getDirectoryToCheck()
+	printAuditLogOfChangs(directoryToWalk)
+}
 
-	if err != nil {
-		log.Fatal(err)
+func getDirectoryToCheck() string {
+	if len(os.Args) > 1 {
+		return os.Args[1]
+	} else {
+		return "d:\\vitegra\\capture-server\\data\\changes\\current"
 	}
-
-	fmt.Println("Hello, geeksforgeeks")
-
-	iterate(currentDirectory)
 }
 
 type Reference struct {
@@ -65,7 +66,7 @@ const VIDEO_FORM_ID = "ee450438-2918-47d4-8892-b6f5df3d508a"
 const PROCEDURE_FORM_ID = "e90b9ab4-085a-4973-8ef0-ae683599c92c"
 const CURRENT_RECORDING_INFO = "vitegra-recording-info"
 
-func iterate(path string) {
+func printAuditLogOfChangs(path string) {
 	now := time.Now().UTC()
 	startDateTime := now.AddDate(0, -NUMBER_OF_MONTHS_TO_REVIEW, 0)
 
@@ -242,11 +243,11 @@ func iterate(path string) {
 				var user = document.Data["user"].(map[string]interface{})
 				fmt.Printf("%s;PROCEDURE_REVIEW;%s;%s;\n", document.Modified.At, user["id"], user["text"])
 			} else if document.Form.Id == PROCEDURE_FORM_ID {
-				fmt.Printf("%s;PROCEDURE;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
+				fmt.Printf("%s;PROCEDURE_CHANGE;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
 			} else if document.Form.Id == VIDEO_FORM_ID {
-				fmt.Printf("%s;VIDEO;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
+				fmt.Printf("%s;VIDEO_CHANGE;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
 			} else if document.Form.Id == IMAGE_FORM_ID {
-				fmt.Printf("%s;IMAGE;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
+				fmt.Printf("%s;IMAGE_CHANGE;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
 			} else if document.Id == USER_SETTINGS {
 				fmt.Printf("%s;USER_SETTINGS_CHANGE;%s;%s;%s\n", document.Modified.At, document.Data["name"], document.Id, changeEvent.Path)
 				// fmt.Println(changeEvent.Path, changeEvent.Type, changeEvent.Document.Form.Text)
